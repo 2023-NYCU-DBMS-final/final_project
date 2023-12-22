@@ -7,4 +7,4 @@
 - team_member:
     - DavidChou(周哲煒)  
     - ....(郭瀚崴)  
-    - ....(董少鈞)  
+    - ShaoJyun(董少鈞)  
