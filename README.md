@@ -6,5 +6,5 @@
 
 - team_member:
     - DavidChou(周哲煒)  
-    - ....(郭瀚崴)  
+    - Adj_parrot(郭瀚崴)  
     - ShaoJyun(董少鈞)  
