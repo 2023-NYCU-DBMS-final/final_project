@@ -1,3 +1,4 @@
+import os
 import sqlite3
 import pandas as pd
 
@@ -7,7 +8,7 @@ conn = sqlite3.connect('mydatabase.db')
 # Create a cursor object to execute SQL queries
 cursor = conn.cursor()
 
-# Create a table
+# Create a table (if not exists)
 def create_table():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS my_table (
@@ -44,24 +45,37 @@ def create_table():
     conn.commit()
 
 # Function to insert data from CSV to the table
-def insert_data_from_csv():
-    try:
-        data = pd.read_csv('./2022/二林_2022.csv', encoding='big5')
-        data_columns = data.columns.tolist()
-        data_values = data.values.tolist()
-        
-        cursor.executemany('''
-            INSERT INTO my_table 
-            (SiteName, Date, TestTarget, Test0, Test1, Test2, Test3, Test4, Test5, Test6, Test7, Test8, Test9, Test10, Test11, Test12, Test13, Test14, Test15, Test16, Test17, Test18, Test19, Test20, Test21, Test22, Test23)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', data_values)
-        conn.commit()
-    except Exception as e:
-        print("Error:", e)
+def insert_data_from_csv(directory):
+    for file in os.listdir(directory):
+        if file.endswith(".csv"):
+            file_path = os.path.join(directory, file)
+            try:
+                data = pd.read_csv(file_path, encoding='big5', skiprows=2)
+                data_columns = data.columns.tolist()
+                data_values = data.values.tolist()
+                
+                for row in data_values:
+                    try:
+                        cursor.execute('''
+                            INSERT INTO my_table 
+                            (SiteName, Date, TestTarget, Test0, Test1, Test2, Test3, Test4, Test5, Test6, Test7, Test8, Test9, Test10, Test11, Test12, Test13, Test14, Test15, Test16, Test17, Test18, Test19, Test20, Test21, Test22, Test23)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ''', row)
+                    except sqlite3.IntegrityError:
+                        print(f"Skipping duplicate entry in {file}")
+                        continue
+                        
+                conn.commit()
+            except Exception as e:
+                print(f"Error reading {file}: {e}")
 
-# Create table and insert data
+
+# Directory containing CSV files
+csv_directory = './2022'
+
+# Create table and insert data from all CSV files in the directory
 create_table()
-insert_data_from_csv()
+insert_data_from_csv(csv_directory)
 
 # Close the connection
 conn.close()
