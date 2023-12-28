@@ -1,0 +1,36 @@
+homepage:
+    /*********************
+    *   title:Homepage
+    body:
+    check if user is logged in(by cookie) at backend
+        welcome to homepage
+        login button --> loginpage
+        signup button --> signuppage
+    *********************/
+loginpage:
+    /*********************
+    *   title:Login
+    body:
+        Login to use our services
+        username: <input type="text" name="username">
+        password: <input type="password" name="password">
+        login button --> login (alert success or failure, if success go to userpage)
+    *********************/
+signuppage:
+    /*********************
+    *   title:Signup
+    body:
+        Signup to use our services
+        username: <input type="text" name="username">
+        password: <input type="password" name="password">
+        confirm password: <input type="password" name="password">
+        signup button(check is password==confirm password) --> signup (alert success or failure(and result send back by response), if success go to loginpage)
+    *********************/
+userpage:
+    check if user is logged in(by cookie) at backend
+    if not logged in, redirect to loginpage and alert "please login first"
+    if logged in, show userpage
+    - delete account button --> (check password again, and type specific string(like github delete repo)) deleteaccount (alert success or failure, if success go to homepage)
+    - change password button --> (check password again) changepassword (alert success or failure, if success go to homepage)
+    - logout button --> logout (alert success or failure, if success go to homepage)
+```
