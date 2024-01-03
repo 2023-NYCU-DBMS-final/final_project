@@ -39,7 +39,7 @@ def create_table():
             Test21 INTEGER,
             Test22 INTEGER,
             Test23 INTEGER,
-            PRIMARY KEY (Date, TestTarget)
+            PRIMARY KEY (SiteName, Date, TestTarget)
         )
     ''')
     conn.commit()
