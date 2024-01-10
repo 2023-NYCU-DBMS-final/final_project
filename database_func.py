@@ -70,11 +70,36 @@ def get_current_data(city, site_name):
 
     current_data=[]
 
+    query='''SELECT * FROM a'''
+    cursor.execute(query)
+    rows=cursor.fetchall()
+    for row in rows:
+        i=0
+        for data in row:
+            if(i==0):
+                current_data.append({"SiteName" : data})
+            elif(i==1):
+                current_data.append({"County" :data})
+            elif(i==2):
+                current_data.append({"AQI" :data})
+            elif(i==3):
+                current_data.append({"status" :data})
+            elif(i==4):
+                current_data.append({"pm2_5" :data})
+            elif(i==5):
+                current_data.append({"wind_speed" :data})
+            elif(i==6):
+                current_data.append({"wind_direc" :data})
+            elif(i==7):
+                current_data.append({"publishtime" :data})
+            elif(i==8):
+                current_data.append({"pm2_5_avg" :data})
+            i=i+1
+    conn.commit()
 
     query='''DROP TABLE a'''
     cursor.execute(query)
     conn.commit()
-    print(current_data)
     return current_data
 
 def getcity():
