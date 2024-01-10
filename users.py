@@ -36,7 +36,7 @@ def add_user(username, password):
 def checkcookie(cookie):
     conn = sqlite3.connect('user_database.db')
     c = conn.cursor()
-    c.execute('SELECT * FROM users WHERE username = ?', (base64.b64decode(cookie).decode(),))
+    c.execute('SELECT * FROM users WHERE username = ?', (base64.b64decode(cookie.encode()).decode(),))
     result = c.fetchall()
     conn.close()
     return bool(result)
