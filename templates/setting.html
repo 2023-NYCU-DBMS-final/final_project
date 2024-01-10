@@ -100,20 +100,17 @@
                 <p>Please enter password again to proceed</p>
             
                 <label for="password">Passward:</label>
-                <input type="password" id="password" name="password" required>
+                <input type="password" id="deletepassword" name="password" required>
                 <div style="text-align: center;">
                     <button class="cust_button" type="submit">Delete</button>
                 </div>
         </div>
         <div class="rtc">
-            <div id = "userName"></div>
+            <p id = "userName"></p>
             <span><button onclick="location.href='/dashboard'" style="font-size: medium;">Back to dashboard</button></span>
         </div>
     </body>
     <script>
-        let userInfo = document.getElementById('userName');
-        let what;
-        fetch('/getUsername').then(what = Response);
-        userInfo.innerHTML = '<p>' + what + '<p>';
+        fetch('/getName').then(res=>{return res.json()}).then(data=>{document.getElementById('userName').innerText = 'UserName is '+data.name});
     </script>
 </html>
