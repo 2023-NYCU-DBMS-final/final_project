@@ -1,6 +1,5 @@
 import os
 import sqlite3
-import pandas as pd
 
 # Connect to SQLite database (creates if it doesn't exist)
 conn = sqlite3.connect('airData.db')
@@ -34,7 +33,7 @@ def get_history_data(city, site_name):
     history_data=[]
     for target in targets:
         converted_target="'"+target+"'"
-        query='''SELECT SiteName, TestTaret, AVG(Test0),  FROM a WHERE substr(TestTarget, 1, ''' + str(len(target)) + ''')=''' + converted_target +'''GROUP BY TestTarget, Year ORDER BY YEAR'''
+        query='''SELECT SiteName, TestTaret, Year, AVG(Test0),  FROM a WHERE substr(TestTarget, 1, ''' + str(len(target)) + ''')=''' + converted_target +'''GROUP BY TestTarget, Year ORDER BY YEAR'''
         cursor.execute(query)
         data=cursor.fetchall()
         history_data.append({target: data})
