@@ -1,13 +1,12 @@
 import os
 import sqlite3
 
-# Connect to SQLite database (creates if it doesn't exist)
-conn = sqlite3.connect('airData.db')
-
-# Create a cursor object to execute SQL queries
-cursor = conn.cursor()
-
 def get_test_target():
+    # Connect to SQLite database (creates if it doesn't exist)
+    conn = sqlite3.connect('airData.db')
+
+    # Create a cursor object to execute SQL queries
+    cursor = conn.cursor()
     query='''SELECT DISTINCT TestTarget
         FROM cumulateData
         '''
@@ -19,6 +18,11 @@ def get_test_target():
     return sites_list
 
 def get_history_data(city, site_name):
+    # Connect to SQLite database (creates if it doesn't exist)
+    conn = sqlite3.connect('airData.db')
+
+    # Create a cursor object to execute SQL queries
+    cursor = conn.cursor()
     converted_site_name="'"+site_name+"'"
     targets=get_test_target()
     
@@ -46,6 +50,12 @@ def get_history_data(city, site_name):
     return history_data
 
 def get_current_data(city, site_name):
+    # Connect to SQLite database (creates if it doesn't exist)
+    conn = sqlite3.connect('airData.db')
+
+    # Create a cursor object to execute SQL queries
+    cursor = conn.cursor()
+
     converted_site_name="'"+site_name+"'"
     converted_city="'"+city+"'"
     history_data=[]
@@ -102,9 +112,15 @@ def get_current_data(city, site_name):
     return current_data
 
 def getcity():
+    # Connect to SQLite database (creates if it doesn't exist)
+    conn = sqlite3.connect('airData.db')
+
+    # Create a cursor object to execute SQL queries
+    cursor = conn.cursor()
+
     cursor.execute('''
         SELECT DISTINCT county 
-        FROM current
+        FROM currentData
     ''')
     counties=cursor.fetchall()
     counties_list = [county[0] for county in counties]
@@ -116,6 +132,12 @@ def getcity():
 #'桃園市','宜蘭縣','臺北市','花蓮縣','嘉義市','苗栗縣','新竹市','新竹縣','基隆市'
 
 def get_site_in_city(city):
+    # Connect to SQLite database (creates if it doesn't exist)
+    conn = sqlite3.connect('airData.db')
+
+    # Create a cursor object to execute SQL queries
+    cursor = conn.cursor()
+
     converted_string = "'" + city + "'"
     query='''SELECT DISTINCT sitename
         FROM currentData
@@ -127,6 +149,12 @@ def get_site_in_city(city):
     return sites_list
 
 def get_sites():
+    # Connect to SQLite database (creates if it doesn't exist)
+    conn = sqlite3.connect('airData.db')
+
+    # Create a cursor object to execute SQL queries
+    cursor = conn.cursor()
+
     query='''SELECT DISTINCT sitename
         FROM cumulateData
         '''

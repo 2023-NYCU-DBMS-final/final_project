@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, make_response
+from flask import Flask, render_template, request, redirect, url_for, make_response, jsonify
 import base64
 import users   #users.py
 import datas   #datas.py
@@ -10,85 +10,88 @@ app = Flask(__name__)
 #get
 
 @app.route('/', methods=['GET'])
-def index():
-    if(users.checkcookie(request.cookies.get('user'))):
+def homePage():
+    if(request.cookies.get('user')!=None and users.checkcookie(request.cookies.get('user'))):
         #prompt out alert "you are already login, redirect to dashboard"
-        response = make_response(redirect(url_for('dashboard')))
+        response = make_response(redirect(url_for('dashboardPage')))
         response.set_cookie('alert', 'You are already login, redirect to dashboard')
+        print(request.cookies.get('user'))
+        print(users.checkcookie(request.cookies.get('user')))
         return response
     else:
         return render_template('home.html')
 
 @app.route('/login', methods=['GET'])
-def showlogin():
-    if(users.checkcookie(request.cookies.get('user'))):
+def loginPage():
+    if(request.cookies.get('users')!=None and users.checkcookie(request.cookies.get('user'))):
         #prompt out alert "you are already login, redirect to dashboard"
-        response = make_response(redirect(url_for('dashboard')))
+        print(users.checkcookie(request.cookies.get('user')))
+        response = make_response(redirect(url_for('dashboardPage')))
         response.set_cookie('alert', 'You are already login, redirect to dashboard')
         return response
     else:
         return render_template('login.html')
 
 @app.route('/signup', methods=['GET'])
-def showsignup():
-    if(users.checkcookie(request.cookies.get('user'))):
+def signupPsge():
+    if(request.cookies.get('users') !=None and users.checkcookie(request.cookies.get('user'))):
         #prompt out alert "you are already login, redirect to dashboard"
-        response = make_response(redirect(url_for('dashboard')))
+        response = make_response(redirect(url_for('dashboardPage')))
         response.set_cookie('alert', 'You are already login, redirect to dashboard')
         return response
     else:
         return render_template('signup.html')
 
 @app.route('/dashboard', methods=['GET'])
-def showdata():
-    if(users.checkcookie(request.cookies.get('user'))):
+def dashboardPage():
+    if(request.cookies.get('users')!=None and users.checkcookie(request.cookies.get('user'))):
         return render_template('dashboard.html')
     else:
         #prompt out alert "you are not login as our user, redirect to login page"
-        response = make_response(redirect(url_for('home')))
+        response = make_response(redirect(url_for('homePage')))
         response.set_cookie('alert', 'You are not login as our user, redirect to login page')
         return response
 
 @app.route('/setting', methods=['GET'])
-def showdata(): 
-    if(users.checkcookie(request.cookies.get('user'))):
+def SettingPage(): 
+    if(request.cookies.get('user')!=None and users.checkcookie(request.cookies.get('user'))):
         return render_template('setting.html')
     else:
         #prompt out js alert window :"you are not login as our user, redirect to login page"
-        response = make_response(redirect(url_for('home')))
+        response = make_response(redirect(url_for('homePage')))
         response.set_cookie('alert', 'You are not login as our user, redirect to login page')
         return response
     
 @app.route('/logout', methods=['GET'])
-def logout():
-    response = make_response(redirect(url_for('home')))
+def logoutAPI():
+    response = make_response(redirect(url_for('homePage')))
     #delete all cookies
     response.delete_cookie('user')
     response.delete_cookie('alert')
     return response
 
 @app.route('/lcity', methods=['GET'])
-def lcity():
-    if(users.checkcookie(request.cookies.get('user'))):
+def lcityAPI():
+    if(request.cookies.get('users')!=None and users.checkcookie(request.cookies.get('user'))):
         city_list = dict()
         city_list["city"] = database_func.getcity()
         city_list["num"] = len(city_list["city"])
         #in json format
-        return Flask.jsonify(city_list)
+        return jsonify(city_list)
     else:
         #prompt out js alert window :"you are not login as our user, redirect to login page"
-        response = make_response(redirect(url_for('home')))
+        response = make_response(redirect(url_for('homePage')))
         response.set_cookie('alert', 'You are not login as our user, redirect to login page')
         return response
 
 @app.route('/updata', methods=['GET'])
-def updatedata():
-    if(users.checkcookie(request.cookies.get('user'))):
+def updatedataAPI():
+    if(request.cookies.get('users')!=None and users.checkcookie(request.cookies.get('user'))):
         datas.updatecurrent()
         return "update success"
     else:
         #prompt out js alert window :"you are not login as our user, redirect to login page"
-        response = make_response(redirect(url_for('home')))
+        response = make_response(redirect(url_for('homePage')))
         response.set_cookie('alert', 'You are not login as our user, redirect to login page')
         return response
 
@@ -97,10 +100,10 @@ def updatedata():
 #################################post
 
 @app.route('/login', methods=['POST'])
-def login():
-    if(users.checkcookie(request.cookies.get('user'))):
+def loginAPI():
+    if(request.cookies.get('users')!=None and users.checkcookie(request.cookies.get('user'))):
         #prompt out alert "you are already login, redirect to dashboard"
-        response = make_response(redirect(url_for('dashboard')))
+        response = make_response(redirect(url_for('dashboardPage')))
         response.set_cookie('alert', 'You are already login, redirect to dashboard')
         return response
     else:
@@ -117,13 +120,13 @@ def login():
             # Set a cookie upon successful login
             response = make_response('Login successful')
             #cookie expire in 10 minutes
-            response.set_cookie('user', base64.baase64encode(username.encode()).decode(), max_age=600)
+            response.set_cookie('user', base64.b64encode(username.encode()).decode(), max_age=600)
             return response
         else:
             return 'Login failed'
 
 @app.route('/signup', methods=['POST'])
-def signup():
+def signupAPI():
     username = request.form.get('username')
     password = request.form.get('password')
     username.replace('"',"").replace("'","").replace(";","")\
@@ -139,44 +142,33 @@ def signup():
     if(users.add_user(username, password)):
         return 'Signup successful'
     else:
+        res=make_response('Signup failed')
+        res.set_cookie('alert', 'Username already exists')
         return 'Signup failed'
 
-@app.route('/userpage')
-def userpage():
-    # Check if the user is logged in (you need to implement this logic)
-    username = request.cookies.get('user')
-
-    if username:
-        return render_template('userpage.html', username=username)
-    else:
-        # Redirect to login page with an alert
-        response = make_response(redirect(url_for('loginpage')))
-        response.set_cookie('alert', 'Please login first')
-        return response
-
 @app.route('/lsite', methods=['POST'])
-def lcity():
-    if(users.checkcookie(request.cookies.get('user'))):
+def lsiteAPI():
+    if(request.cookies.get('users')!=None and users.checkcookie(request.cookies.get('user'))):
         site_list = dict()
         site_list["city"]=database_func.getcity(request.form.get('city'))
         site_list["num"]=len(site_list["city"])
         #in json format
-        return Flask.jsonify(site_list)
+        return jsonify(site_list)
     else:
         #prompt out js alert window :"you are not login as our user, redirect to login page"
-        response = make_response(redirect(url_for('home')))
+        response = make_response(redirect(url_for('homeAPI')))
         response.set_cookie('alert', 'You are not login as our user, redirect to login page')
         return response
 
 @app.route('/updategraph', methods=['POST'])
-def updategraph():
-    if(users.checkcookie(request.cookies.get('user'))):
+def updategraphAPI():
+    if(request.cookies.get('uses')!=None and users.checkcookie(request.cookies.get('user'))):
         database_func.updategraph(request.form.get('city'),request.form.get('site'))
         curdata = database_func.getcurrentdata(request.form.get('city'),request.form.get('site'))
-        return Flask.jsonify(curdata)
+        return jsonify(curdata)
     else:
         #prompt out js alert window :"you are not login as our user, redirect to login page"
-        response = make_response(redirect(url_for('home')))
+        response = make_response(redirect(url_for('homeAPI')))
         response.set_cookie('alert', 'You are not login as our user, redirect to login page')
         return response
 
@@ -185,8 +177,8 @@ def updategraph():
 #password
 #password_conf
 @app.route('/uppwd', methods=['POST'])
-def updataNewPassword():
-    if(users.checkcookie(request.cookies.get('user'))):
+def updataNewPasswordAPI():
+    if(request.cookies.get('users')!=None and users.checkcookie(request.cookies.get('user'))):
         oldpwd = request.cookies.get('password_old')
         newpwd = request.form.get('password')
         confpwd = request.form.get('password_conf')
@@ -211,26 +203,26 @@ def updataNewPassword():
             return "update failed(wrong old password)"
     else:
         #prompt out js alert window :"you are not login as our user, redirect to login page"
-        response = make_response(redirect(url_for('home')))
+        response = make_response(redirect(url_for('homePage')))
         response.set_cookie('alert', 'You are not login as our user, redirect to login page')
         return response
 
 @app.route('/currentdata', methods=['POST'])
-def currentdata():
-    if(users.checkcookie(request.cookies.get('user'))):
+def currentdataAPI():
+    if(request.cookies.get('users')!=None and users.checkcookie(request.cookies.get('user'))):
         curdata = database_func.getcurrentdata(request.form.get('city'),request.form.get('site'))
-        return Flask.jsonify(curdata)
+        return jsonify(curdata)
     else:
         #prompt out js alert window :"you are not login as our user, redirect to login page"
-        response = make_response(redirect(url_for('home')))
+        response = make_response(redirect(url_for('homePage')))
         response.set_cookie('alert', 'You are not login as our user, redirect to login page')
         return response
     
 @app.route('/deleteAcc', methods=['POST'])
-def deleteAcc():
-    if(users.checkcookie(request.cookies.get('user'))):
-        if deleteAcc(base64.b64decode(request.cookies.get('user')).decode()):
-            response = make_response(redirect(url_for('home')))
+def deleteAccAPI():
+    if(request.cookies.get('users')!=None and users.checkcookie(request.cookies.get('user'))):
+        if users.deleteAccount(base64.b64decode(request.cookies.get('user')).decode()):
+            response = make_response(redirect(url_for('homePage')))
             response.delete_cookie('user')
             response.delete_cookie('alert')
             return response
@@ -238,7 +230,7 @@ def deleteAcc():
             return "delete failed(unknown error)"
     else:
         #prompt out js alert window :"you are not login as our user, redirect to login page"
-        response = make_response(redirect(url_for('home')))
+        response = make_response(redirect(url_for('homePage')))
         response.set_cookie('alert', 'You are not login as our user, redirect to login page')
         return response
 

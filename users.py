@@ -16,7 +16,13 @@ def add_user(username, password):
     """
         check if username already exists
     """
-
+    c.execute('SELECT * FROM users WHERE username = ?', (username,))
+    result = c.fetchall()
+    if result:
+        return False
+    """
+        add user to database
+    """
 
     hashed_password = hashlib.sha256(password.encode()).hexdigest()
     c.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, hashed_password))
