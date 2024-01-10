@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Settings</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                margin: 0;
+            }
+    
+            .entry {
+                border: 1px solid #ccc;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                width: 300px;
+                align-items: center;
+                text-align: center;
+                justify-content: center;
+                display: flex;
+                flex-direction: column;
+            }
+    
+            input {
+                width: 100%;
+                padding: 8px;
+                margin-bottom: 10px;
+                box-sizing: border-box;
+            }
+    
+            .cust_button {
+                background-color: #1bc5d8ba;
+                color: white;
+                width: 260px;
+                height: 60px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size:large;
+            }
+
+            .rtc{
+                position: absolute;
+                top: 10px;
+                right: 20px;
+                padding: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="entry">
+            <img src="https://cdn-icons-png.flaticon.com/512/1827/1827797.png" style="width: 70px; height: 70px;">
+            <h1>Settings</h1>
+            <div style="padding: 5px;">
+                <button class="cust_button" onclick="location.href='./cpw.html'">Change Password</button>
+            </div>
+            <div style="padding: 5px;">
+                <button class="cust_button" onclick="location.href='./delete_acc.html'">Delete Account</button>
+            </div>
+        </div>
+        <div class="rtc">
+            <button onclick="location.href='./dashboard.html'" style="font-size: medium;">Dashboard</button>
+        </div>
+    </body>
+</html>
