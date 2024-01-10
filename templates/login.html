@@ -40,7 +40,7 @@
     </style>
 </head>
 <body>
-    <form action="/login" method="post">
+    <form action="/login" method="post" id="loginData">
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" required>
 
@@ -50,4 +50,22 @@
         <button type="submit">Login</button>
     </form>
 </body>
+<script>
+    function submitForm() {
+            var form = document.getElementById('loginData');
+            fetch('/login', {
+                method: 'POST',
+                body: new FormData(form)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Server response:', data);
+                alert(JSON.stringify(data));
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Fork you');
+            });
+        }
+</script>
 </html>
