@@ -10,7 +10,7 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                height: 100vh;
+                height:fit-content;
                 margin: 0;
             }
     
@@ -57,15 +57,45 @@
         <div class="entry">
             <img src="https://cdn-icons-png.flaticon.com/512/1827/1827797.png" style="width: 70px; height: 70px;">
             <h1>Settings</h1>
-            <div style="padding: 5px;">
-                <button class="cust_button" onclick="location.href='./cpw.html'">Change Password</button>
-            </div>
-            <div style="padding: 5px;">
-                <button class="cust_button" onclick="location.href='./delete_acc.html'">Delete Account</button>
-            </div>
+        <div>
+            <form action="/uppwd" method="post">
+                <div style="text-align: center;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/5509/5509361.png" style="width: 70px; height: 70px; text-align: center;">
+                </div>
+                <h1 style="text-align: center;">Change Password</h1>
+        
+                <label for="password_old">Passward:</label>
+                <input type="password" id="password_old" name="password_old" required>
+        
+                <label for="password">New password:</label>
+                <input type="password" id="password" name="password" required>
+        
+                <label for="password_conf">Confirm password</label>
+                <input type="password" id="password_conf" name="password_conf" required>
+                <div style="text-align: center;">
+        
+                    <button class="cust_button" type="submit">Change passward</button>
+        
+                </div>
+            </form>
+        </div>
+        <div>
+            <form action="/deleteAcc" method="post">
+                <div style="text-align: center;">
+                    <img src="https://cdn-icons-png.flaticon.com/512/4812/4812459.png" style="width: 70px; height: 70px; text-align: center;">
+                </div>
+                <h1 style="text-align: center;">Delete Account</h1>
+                <h2 style="text-align: center; color: red;">Warning<br>This can not be reversed</h2>
+                <p>Please enter password again to proceed</p>
+            
+                <label for="password">Passward:</label>
+                <input type="password" id="password" name="password" required>
+                <div style="text-align: center;">
+                    <button class="cust_button" type="submit">Delete</button>
+                </div>
         </div>
         <div class="rtc">
-            <button onclick="location.href='./dashboard.html'" style="font-size: medium;">Dashboard</button>
+            <button onclick="location.href='./dashboard.html'" style="font-size: medium;">Back to dashboard</button>
         </div>
     </body>
 </html>
