@@ -47,7 +47,7 @@ def dashboardPage():
         return response
 
 @app.route('/setting', methods=['GET'])
-def SettingPage(): 
+def SettingPage():
     if(request.cookies.get('user')!=None and users.checkcookie(request.cookies.get('user'))):
         return render_template('setting.html')
     else:
@@ -107,7 +107,7 @@ def loginAPI():
 
         if users.checklogin(username, password):
             # Set a cookie upon successful login
-            response = make_response('Login successful')
+            response = make_response(redirect(url_for('dashboardPage')))
             #cookie expire in 10 minutes
             response.set_cookie('user', base64.b64encode(username.encode()).decode(), max_age=600)
             return response
@@ -129,6 +129,7 @@ def signupAPI():
     # For simplicity, I'm assuming that the username is unique
     # In a real application, you'd need to check for existing usernames, handle password hashing, etc.
     if(users.add_user(username, password)):
+        response = make_response(redirect(url_for('loginPage')))
         return 'Signup successful'
     else:
         res=make_response('Signup failed')
