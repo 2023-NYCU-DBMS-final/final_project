@@ -25,6 +25,7 @@
 
     </head>
     <body>
+        <ul id = "cityList"></ul>
         <div class="rtc">
             <button onclick="location.href='./Settings.html'">Settings</button>
             <button onclick="/logout">Logout</button>
@@ -36,15 +37,32 @@
             <div>
                 <span>
                     <span>
-                        <select>
+                        <select id = "cityList" onchange="updateSubCatagories()">
                             <option></option>
                         </select>
                     </span>
+                    <select>
+                        <option></option>
+                    </select>
                     <span>
 
                     </span>
                 </span>
             </div>
         </div>
+        
+        <script>
+            let cityL = document.getElementById('cityList');
+            let cityE;
+            fetch('/lcity').then((Response) => {return Response.json();}).then((Response) => {cityE = Response});
+            for(let i = 0; i < cityE.length; i++)
+            {
+                let option = document.createElement('option');
+                option.value = cityE[i].toLowerCase();
+                option.text = cityE[i];
+                cityL.add(option);
+            }
+        </script>
+        
     </body>
 </html>
