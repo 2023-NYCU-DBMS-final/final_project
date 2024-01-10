@@ -80,7 +80,16 @@ def lcity():
         response.set_cookie('alert', 'You are not login as our user, redirect to login page')
         return response
 
-
+@app.route('/updata', methods=['GET'])
+def updatedata():
+    if(checkcookie(request.cookies.get('user'))):
+        updatecurrent()
+        return "update success"
+    else:
+        #prompt out js alert window :"you are not login as our user, redirect to login page"
+        response = make_response(redirect(url_for('home')))
+        response.set_cookie('alert', 'You are not login as our user, redirect to login page')
+        return response
 
 #################################post
 

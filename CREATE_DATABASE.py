@@ -3,7 +3,7 @@ import sqlite3
 import pandas as pd
 
 # Connect to SQLite database (creates if it doesn't exist)
-conn = sqlite3.connect('mydatabase.db')
+conn = sqlite3.connect('airData.db')
 
 # Create a cursor object to execute SQL queries
 cursor = conn.cursor()
@@ -11,7 +11,7 @@ cursor = conn.cursor()
 # Create a table (if not exists)
 def create_table():
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS my_table (
+        CREATE TABLE IF NOT EXISTS cumulateData (
             SiteName TEXT,
             Date TEXT,
             TestTarget TEXT,
@@ -57,7 +57,7 @@ def insert_data_from_csv(directory):
                 for row in data_values:
                     try:
                         cursor.execute('''
-                            INSERT INTO my_table 
+                            INSERT INTO cumulateData
                             (SiteName, Date, TestTarget, Test0, Test1, Test2, Test3, Test4, Test5, Test6, Test7, Test8, Test9, Test10, Test11, Test12, Test13, Test14, Test15, Test16, Test17, Test18, Test19, Test20, Test21, Test22, Test23)
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ''', row)
