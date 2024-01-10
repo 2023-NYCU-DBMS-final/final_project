@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
+    <title>Change Passward</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -29,43 +29,32 @@
             box-sizing: border-box;
         }
 
-        button {
+        .cust_button {
             background-color: #4CAF50;
             color: white;
             padding: 10px 15px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: large;
         }
     </style>
 </head>
 <body>
-    <form action="/login" method="post" id="loginData">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
+    <form action="/uppwd" method="post">
+        <h1 style="text-align: center;">Change Password</h1>
 
-        <label for="password">Password:</label>
+        <label for="password_old">Passward:</label>
+        <input type="password" id="password_old" name="password_old" required>
+
+        <label for="password">New password:</label>
         <input type="password" id="password" name="password" required>
 
-        <button type="submit">Login</button>
+        <label for="password_conf">Confirm password</label>
+        <input type="password" id="password_conf" name="password_conf" required>
+        <div style="text-align: center;">
+        <button class="cust_button" >Change passward</button>
+        </div>
     </form>
 </body>
-<script>
-    function submitForm() {
-            var form = document.getElementById('loginData');
-            fetch('/login', {
-                method: 'POST',
-                body: new FormData(form)
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Server response:', data);
-                alert(JSON.stringify(data));
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Fork you');
-            });
-        }
-</script>
 </html>
