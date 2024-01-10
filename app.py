@@ -85,7 +85,16 @@ def updatedataAPI():
         response = make_response(redirect(url_for('homePage')))
         return response
 
-
+@app.route('/getName', methods=['GET'])
+def getNameAPI():
+    if(request.cookies.get('user')!=None and users.checkcookie(request.cookies.get('user'))):
+        res = dict()
+        res['name']=base64.b64decode(request.cookies.get('user')).decode()
+        return jsonify(res)
+    else:
+        #prompt out js alert window :"you are not login as our user, redirect to login page"
+        response = make_response(redirect(url_for('homePage')))
+        return response
 
 #################################post
 
