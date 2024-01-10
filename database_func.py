@@ -137,14 +137,15 @@ def get_site_in_city(city):
 
     # Create a cursor object to execute SQL queries
     cursor = conn.cursor()
-
-    converted_string = "'" + city + "'"
     query='''SELECT DISTINCT sitename
         FROM currentData
-        WHERE substr(county, 1, 2)='''+converted_string
+        WHERE substr(county, 1, {})="{}"'''.format(len(city),city)
+    print(query)
     cursor.execute(query)
     site_names=cursor.fetchall()
+    print(site_names)
     sites_list=[site[0] for site in site_names]
+    print(sites_list)
     conn.commit()
     return sites_list
 

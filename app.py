@@ -138,11 +138,28 @@ def signupAPI():
 @app.route('/lsite', methods=['POST'])
 def lsiteAPI():
     if(request.cookies.get('user')!=None and users.checkcookie(request.cookies.get('user'))):
-        site_list = dict()
-        site_list["city"]=database_func.getcity(request.form.get('city'))
-        site_list["num"]=len(site_list["city"])
-        #in json format
-        return jsonify(site_list)
+        """
+        post input from this code
+        fetch('/lsite', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name: 'site', city: selectedCity }),
+            })
+        """
+        selectCity = request.get_json()['city']
+        if(selectCity!=None):
+            site_list = dict()
+            site_list["site"]=database_func.get_site_in_city(selectCity)
+            print(site_list)
+            #in json format
+            return jsonify(site_list)
+        else:
+            site_list = dict()
+            site_list["site"]=list()
+            #in json format
+            return jsonify(site_list)
     else:
         #prompt out js alert window :"you are not login as our user, redirect to login page"
         response = make_response(redirect(url_for('homeAPI')))
@@ -151,9 +168,15 @@ def lsiteAPI():
 @app.route('/updategraph', methods=['POST'])
 def updategraphAPI():
     if(request.cookies.get('user')!=None and users.checkcookie(request.cookies.get('user'))):
+        print(request.form.get('city'))
+        print(request.form.get('site'))
         database_func.updategraph(request.form.get('city'),request.form.get('site'))
         curdata = database_func.getcurrentdata(request.form.get('city'),request.form.get('site'))
-        return jsonify(curdata)
+        res=dict()
+        res["data"]=curdata
+        res['img1']=open('static/img/1.png','rb').read()
+        res['img2']=open('static/img/2.png','rb').read()
+        return jsonify(res)
     else:
         #prompt out js alert window :"you are not login as our user, redirect to login page"
         response = make_response(redirect(url_for('homeAPI')))

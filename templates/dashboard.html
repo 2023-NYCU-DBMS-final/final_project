@@ -1,68 +1,154 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Dashboard</title>
-        <style>
-        .mainBlock{
-        font-family: Arial, sans-serif;
-        display: flex;
-        border: 1px solid #ccc;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        width:fit-content;
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        .mainBlock {
+            font-family: Arial, sans-serif;
+            display: flex;
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: fit-content;
         }
-        .rtc{
+
+        .rtc {
             position: absolute;
             top: 10px;
             right: 20px;
             padding: 10px;
         }
-        </style>
+    </style>
+</head>
 
-    </head>
-    <body>
-        <ul id = "cityList"></ul>
-        <div class="rtc">
-            <button onclick="location.href='./Settings.html'">Settings</button>
-            <button onclick="/logout">Logout</button>
+<body>
+    <div class="rtc"> <!-- right top corner-->
+        <button onclick="location.href='./Settings'">Settings</button>
+        <button onclick="location.href='/logout'">Logout</button>
+    </div>
+    <div style="display: block;" class="mainBlock">
+        <div>
+            <h2>Dashboard</h2>
         </div>
-        <div style="display: block;" class="mainBlock">
-            <div>
-                <h2>Dashboard</h2>
-            </div>
-            <div>
-                <span>
-                    <span>
-                        <select id = "cityList" onchange="updateSubCatagories()">
-                            <option></option>
-                        </select>
-                    </span>
-                    <select>
-                        <option></option>
-                    </select>
-                    <span>
+        <div id="selectoptions">
+            <span>
+                <form id="cityAndSiteForm">
+                    <span id="city">
+                       <select id="citySelect" title="city" onchange="updateSiteList()">
+                        <option selected></option>
+                       </select>
+                      </span>
 
+                    <span id="site">
+                        <select id="siteList" title="site" required onchange="updateUI()">
+                            <option selected></option>
+                         </select>
                     </span>
-                </span>
-            </div>
+                    
+                    <span id="submit">
+                    <button onclick="sendForm()">submit</button>
+                    </span>
+            </span>
         </div>
-        
-        <script>
-            let cityL = document.getElementById('cityList');
-            let cityE;
-            fetch('/lcity').then((Response) => {return Response.json();}).then((Response) => {cityE = Response});
-            for(let i = 0; i < cityE.length; i++)
-            {
-                let option = document.createElement('option');
-                option.value = cityE[i].toLowerCase();
-                option.text = cityE[i];
-                cityL.add(option);
+        <img1 id="currentData">
+        </img1>
+
+        <img2 id="cumulateDataGraph">
+        </img2>
+
+    </div>
+
+    <script>
+        let citySelect = document.getElementById('citySelect');
+        let siteList = document.getElementById('siteList');
+                // Fetch city data on page load
+                document.getElementById('city').style.visibility = 'hidden';
+        document.getElementById('site').style.visibility = 'hidden';
+        document.getElementById('submit').style.visibility = 'hidden';
+        fetch('/lcity')
+            .then((response) => response.json())
+            .then((response) => {
+                citySelect.innerHTML = '<option selected></option>';
+                let cityData = response.city;
+
+                for (let i = 0; i < cityData.length; i++) {
+                    let listItem = document.createElement('option');
+                    listItem.textContent = cityData[i];
+                    citySelect.appendChild(listItem);
+                }
+                
+                // Trigger the initial update of siteList
+                updateSiteList();
+            });
+        document.getElementById('city').style.visibility = 'visible';
+
+        // Function to update the siteList dropdown
+        function updateSiteList() {
+            // Get the selected city
+            let selectedCity = citySelect.value;
+
+
+            // Make a POST request to the server with the selected city
+            fetch('/lsite', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({city: selectedCity }),
+            })
+                .then((response) => response.json())
+                .then((response) => {
+                    // Remove all current options
+                    siteList.innerHTML = '<option selected></option>';
+                    // Add new options based on the response
+                    let siteData = response.site;
+                    console.log(siteData);
+                    for (let i = 0; i < siteData.length; i++) {
+                        let listItem = document.createElement('option');
+                        listItem.textContent = siteData[i];
+                        siteList.appendChild(listItem);
+                    } // end of for loop
+                }); // end of fetch()
+                if(selectedCity != ''){
+                    document.getElementById('siteList').style.visibility = 'visible';
+                }
+        } // end of updateSiteList()
+
+        function updateUI(){
+            if(siteList.value != ''){
+                document.getElementById('submit').style.visibility = 'visible';
             }
-        </script>
-        
-    </body>
+        }
+
+        function sendForm(){
+            let selectedCity = citySelect.value;
+            let selectedSite = siteList.value;
+            console.log(selectedCity);
+            console.log(selectedSite);
+            fetch('/sendForm', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({city: selectedCity, site: selectedSite }),
+            })
+                .then((response) => response.json())
+                .then((response) => {
+
+                    document.getElementById('submit').style.visibility = 'hidden';
+                    //img1 and img2 are image files in response
+                    document.getElementById('currentData').innerHTML = '<img src="data:image/png;base64,' + response.img1 + '">';
+                    document.getElementById('cumulateDataGraph').innerHTML = '<img src="data:image/png;base64,' + response.img2 + '">';
+                    console.log(response['data']);  //showdatas
+                    document.getElementById('currentData').innerHTML = '<option selected>'+selectedCity+'</option>';
+                    document.getElementById('cumulateDataGraph').innerHTML = '<option selected>'+selectedSite+'</option>';
+                }); // end of fetch()
+        }
+    </script>
+</body>
+
 </html>
