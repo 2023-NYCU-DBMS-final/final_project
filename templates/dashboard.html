@@ -22,13 +22,25 @@
             right: 20px;
             padding: 10px;
         }
+
+        table {
+        border-collapse: collapse;
+    }
+
+    td {
+        border-bottom: 1px solid #9b9b9b;
+    }
+
+    th {
+        border-bottom: 1px solid #9b9b9b;
+    }
     </style>
 </head>
 
 <body>
     <div class="rtc"> <!-- right top corner-->
-        <button onclick="location.href='./setting'">Settings</button>
-        <button onclick="location.href='/logout'">Logout</button>
+        <button onclick="location.href='./setting'" style="font-size: medium;">Settings</button>
+        <button onclick="location.href='/logout'" style="font-size: medium;">Logout</button>
     </div>
     <div style="display: block;" class="mainBlock">
         <div>
@@ -53,12 +65,71 @@
                     <button onclick="sendForm()">submit</button>
                     </span>
             </span>
-        </div>
-        <img1 id="currentData">
-        </img1>
+            <span id = "allDataTable">
+                <div style="position: absolute; right: 0px; border: 2px solid rgb(133, 161, 161);">
+                    <table>
+                        <caption style="font-size: 60px;" id ="city_slash_site"><!--縣市/測站名稱--></caption>
+                    <tr>
+                        <th colspan="3">空氣品質指標(AQI)</th>
+                    </tr>
+                    <tr>
+                        <td style="font-size: 90px; text-align: center;" colspan="3" id = "AQI_display"><!--AQI指數--></td>
+                    </tr>
+                        <tr>
+                            <th style="width: 100px;" rowspan="2">PM<sub>2.5</sub></th>
+                            <td style="width: 120px;">移動平均</td>
+                            <td style="width: 100px; height: 40px;" id="PM2_5_avgMove"><!--PM2.5移動平均--></td>
+                        </tr>
+                        <tr>
+                            <td>小時濃度</td>
+                            <td style="height: 40px;" id="PM2_5_hour_concentrate"><!--PM2.5小時濃度--></td>
+                        </tr>
+                        <tr>
+                            <th rowspan="2">PM<sub>10</sub></th>
+                            <td>移動平均</td>
+                            <td style="height: 40px;" id="PM10_avgMove"><!--PM10移動平均--></td>
+                        </tr>
+                        <tr>
+                            <td>小時濃度</td>
+                            <td style="height: 40px;" id="PM10_hour_concentrate"><!--PM10小時濃度--></td>
+                        </tr>
+                        <tr>
+                            <th rowspan="2">O<sub>3</sub><br>臭氧</th>
+                            <td>八小時移動平均</td>
+                            <td style="height: 40px;" id="O3_8h_avgMove"><!--臭氧八小時移動平均--></td>
+                        </tr>
+                        <tr>
+                            <td>小時濃度</td>
+                            <td style="height: 40px;" id="O3_hour_concentrate"><!--臭氧小時濃度--></td>
+                        </tr>
+                        <tr>
+                            <th rowspan="2">CO<br>一氧化碳</th>
+                            <td>八小時移動平均</td>
+                            <td style="height: 40px;" id="CO_8h_avgMove"><!--一氧化碳八小時移動平均--></td>
+                        </tr>
+                        <tr>
+                            <td>小時濃度</td>
+                            <td style="height: 40px;" id="CO_hour_concentrate"><!--一氧化碳小時濃度--></td>
+                        </tr>
+                        <tr>
+                            <th>SO<sub>2</sub><br>二氧化硫</th>
+                            <td>小時濃度</td>
+                            <td style="height: 100px" id="SO2_hour_concentrate"><!--二氧化硫小時濃度--></td>
+                        </tr>
+                        <tr>
+                            <th>NO<sub>2</sub><br>二氧化氮</th>
+                            <td>小時濃度</td>
+                            <td style="height: 100px" id="NO2_hour_concentrate"><!--二氧化氮小時濃度--></td>
+                        </tr>
+                    </table>
+                </div>
+                
+            </span>
 
-        <img2 id="cumulateDataGraph">
-        </img2>
+        </div>
+
+        <img id="cumulateDataGraph">
+        </img>
 
     </div>
 
