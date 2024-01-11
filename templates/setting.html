@@ -12,9 +12,47 @@
                 justify-content: center;
                 height:fit-content;
                 margin: 0;
+                width: 100%;
+                flex-direction: column;
             }
     
-            .entry {
+            .rtc {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background-color: #fddfff; /* Optional: Add a background color */
+                padding: 10px; /* Optional: Add padding */
+                width: 100%; /* Full width */
+                position: relative;
+                top: 0;
+            }
+
+            #title {
+                /*place at the center of the page*/
+                margin-left: 0;
+                margin-right: auto;
+            }
+            
+            #settingimg {
+                width: 50px;
+                height: 50px;
+                margin-right: auto;
+            }
+                        
+            #userName {
+                margin-right: auto;
+            }
+            #gobackdashboard {
+              font-size: medium;
+              background-color: #4CAF50;
+              color: white;
+              padding: 10px 15px;
+              border: none;
+              border-radius: 5px;
+              cursor: pointer;
+              margin-left: auto;
+           }
+            .change-pwd, .delete-acc {
                 border: 1px solid #ccc;
                 padding: 20px;
                 border-radius: 10px;
@@ -26,7 +64,7 @@
                 display: flex;
                 flex-direction: column;
             }
-    
+    /**/
             input {
                 width: 100%;
                 padding: 8px;
@@ -44,54 +82,45 @@
                 cursor: pointer;
                 font-size:large;
             }
-
-            .rtc{
-                position: absolute;
-                top: 10px;
-                right: 20px;
-                padding: 10px;
-            }
-
-            .userInfoBlock{
-                background-color: chocolate;
-                width: fit-content;
-                height: fit-content;
-                border: none;
-                border-radius: 10px;
-                font-size: 20px;
-            }
-
-            
+        /**/            
         </style>
     </head>
     <body>
-        <div class="entry">
-            <img src="https://cdn-icons-png.flaticon.com/512/1827/1827797.png" style="width: 70px; height: 70px;">
-            <h1>Settings</h1>
-        <div>
-            <form action="/uppwd" method="post">
-                <div style="text-align: center;">
-                    <img src="https://cdn-icons-png.flaticon.com/512/5509/5509361.png" style="width: 70px; height: 70px; text-align: center;">
-                </div>
-                <h1 style="text-align: center;">Change Password</h1>
-        
-                <label for="password_old">Passward:</label>
-                <input type="password" id="password_old" name="password_old" required>
-        
-                <label for="password">New password:</label>
-                <input type="password" id="password" name="password" required>
-        
-                <label for="password_conf">Confirm password</label>
-                <input type="password" id="password_conf" name="password_conf" required>
-                <div style="text-align: center;">
-        
-                    <button class="cust_button" type="submit">Change passward</button>
-        
-                </div>
-            </form>
+        <div class="rtc">
+            <img id="settingimg" src="https://cdn-icons-png.flaticon.com/512/1827/1827797.png">
+            <h1 id="title">Settings</h1>
+            <div class="part2">
+                <p id="userName">Username</p>
+                <button id="gobackdashboard" onclick="location.href='/dashboard'">Back to dashboard</button>
+            </div>
         </div>
         <div>
-            <form action="/deleteAcc" method="post">
+        <div class="change-pwd">
+            <h1>Settings</h1>
+            <span>
+                <form id="updatepwdform">
+                    <div style="text-align: center;">
+                        <img src="https://cdn-icons-png.flaticon.com/512/5509/5509361.png" style="width: 70px; height: 70px; text-align: center;">
+                    </div>
+                    <h1 style="text-align: center;">Change Password</h1>
+        
+                    <label for="password_old">Passward:</label>
+                    <input type="password" id="password_old" name="password_old" required>
+        
+                    <label for="password">New password:</label>
+                    <input type="password" id="password" name="password" required>
+        
+                    <label for="password_conf">Confirm password</label>
+                    <input type="password" id="password_conf" name="password_conf" required>
+                    <p id="uppwdmsg" style="color: red;"></p>
+                    <div style="text-align: center;">       
+                        <button class="cust_button" type="submit">Change passward</button>
+                    </div>
+                </form>
+            </span>
+        </div>
+        <div class="delete-acc">
+            <form id="deleteaccform">
                 <div style="text-align: center;">
                     <img src="https://cdn-icons-png.flaticon.com/512/4812/4812459.png" style="width: 70px; height: 70px; text-align: center;">
                 </div>
@@ -101,16 +130,84 @@
             
                 <label for="password">Passward:</label>
                 <input type="password" id="deletepassword" name="password" required>
+                <p id="delaccmsg" style="color: red;"></p>
                 <div style="text-align: center;">
                     <button class="cust_button" type="submit">Delete</button>
                 </div>
+            </form>
         </div>
-        <div class="rtc">
-            <p id = "userName"></p>
-            <span><button onclick="location.href='/dashboard'" style="font-size: medium;">Back to dashboard</button></span>
         </div>
     </body>
     <script>
         fetch('/getName').then(res=>{return res.json()}).then(data=>{document.getElementById('userName').innerText = 'UserName is '+data.name});
+        document.getElementById('updatepwdform').addEventListener('submit', (e)=>{
+            e.preventDefault();
+            const password_old = document.getElementById('password_old').value;
+            const password = document.getElementById('password').value;
+            const password_conf = document.getElementById('password_conf').value;
+            if(password != password_conf){
+                document.getElementById('uppwdmsg').innerText = 'Password and confirm password are not the same';
+                return;
+            }
+            updatepwd();
+        });
+        document.getElementById('deleteaccform').addEventListener('submit', (e)=>{
+            e.preventDefault();
+            if(!confirm('Are you sure to delete your account?')){
+                document.getElementById('delaccmsg').innerText = 'Account deletion cancelled';   
+                document.getElementById('deletepassword').value = '';
+                return;
+            }
+            deleteacc();
+        });
+        async function updatepwd(){
+            const password_old = document.getElementById('password_old').value;
+            const password = document.getElementById('password').value;
+            const password_conf = document.getElementById('password_conf').value;
+            //follow redirect
+            var form = document.getElementById('updatepwdform');
+            const res = await fetch('/uppwd', {
+                method: 'POST',
+                body: new FormData(form)
+            });
+            const data = await res.json();
+            document.getElementById('password_old').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('password_conf').value = '';
+            if(data.status == true){
+                alert(data.msg);
+                location.href = data.url;
+                return;
+            }else{
+                if(data.url != undefined){
+                    alert(data.msg);
+                    location.href = res.url;
+                    return;
+                }
+                document.getElementById('uppwdmsg').innerText = data.msg;
+            }
+        }
+        async function deleteacc(){
+            var form = document.getElementById('deleteaccform');
+            const res = await fetch('/deleteAcc', {
+                method: 'POST',
+                body: new FormData(form)
+            });
+            document.getElementById('deletepassword').value = '';
+            console.log(res);
+            const data = await res.json();
+            if(data.status == true){
+                alert(data.msg);
+                location.href = data.url;
+                return;
+            }else{
+                if(data.url != undefined){
+                    alert(data.msg);
+                    location.href = res.url;
+                    return;
+                }
+                document.getElementById('delaccmsg').innerText = data.msg;
+            }
+        }
     </script>
 </html>

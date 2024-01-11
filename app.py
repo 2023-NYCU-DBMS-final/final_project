@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, make_response, jsonify
+from flask import Flask, render_template, request, redirect, url_for, make_response, jsonify, send_file
 import base64
 import users   #users.py
 import datas   #datas.py
@@ -96,14 +96,29 @@ def getNameAPI():
         response = make_response(redirect(url_for('homePage')))
         return response
 
+@app.route('/currentimg', methods=['GET'])
+def currentimgAPI():
+    img_path = 'templates/monthgraph.png'
+    response = send_file(img_path, mimetype='image/jpeg', as_attachment=True)
+    
+    # Set cache-control headers to prevent caching
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+
+    return response
+
 #################################post
 
 @app.route('/login', methods=['POST'])
 def loginAPI():
     if(request.cookies.get('user')!=None and users.checkcookie(request.cookies.get('user'))):
+        res = dict()
+        res['status']=True
+        res['alert']="You are already login, redirect to dashboard"
+        res['url']=url_for('dashboardPage')
+        response = make_response(jsonify(res),200)
         #prompt out alert "you are already login, redirect to dashboard"
-        response = make_response(redirect(url_for('dashboardPage')))
-        return response
+
+        return response 
     else:
         username = request.form.get('username')
         password = request.form.get('password')
@@ -116,33 +131,51 @@ def loginAPI():
 
         if users.checklogin(username, password):
             # Set a cookie upon successful login
-            response = make_response(redirect(url_for('dashboardPage')))
+            res= {'status':True,'alert':"Login successful, redirect to dashboard",'url':url_for('dashboardPage')}
+            response = make_response(jsonify(res),200)
             #cookie expire in 10 minutes
             response.set_cookie('user', base64.b64encode(username.encode()).decode(), max_age=600)
             return response
         else:
-            return 'Login failed'
+            res= {'status':False,'alert':"Login failed, wrong username or password"}
+            response = make_response(jsonify(res),200)
+            return response
 
 @app.route('/signup', methods=['POST'])
 def signupAPI():
-    username = request.form.get('username')
-    password = request.form.get('password')
-    username.replace('"',"").replace("'","").replace(";","")\
-    .replace(" ","").replace("=","").replace("(","").replace(")","")\
-    .replace("\\","").replace("/","")
-    password.replace('"',"").replace("'","").replace(";","")\
-    .replace(" ","").replace("=","").replace("(","").replace(")","")\
-    .replace("\\","").replace("/","")
+    if(request.cookies.get('user')!=None and users.checkcookie(request.cookies.get('user'))):
+        res = dict()
+        res['status']=True
+        res['alert']="You are already login, redirect to dashboard"
+        res['url']=url_for('dashboardPage')
+        response = make_response(jsonify(res),200)
+        #prompt out alert "you are already login, redirect to dashboard"
 
-    # Add your signup logic here
-    # For simplicity, I'm assuming that the username is unique
-    # In a real application, you'd need to check for existing usernames, handle password hashing, etc.
-    if(users.add_user(username, password)):
-        response = make_response(redirect(url_for('loginPage')))
-        return 'Signup successful'
+        return response
+    elif(request.form.get('password')!=None and request.form.get('password_conf')!=None):
+            res= {'status':False,'alert':"Signup failed, password not match"}
+            response = make_response(jsonify(res),200)
+            return response
     else:
-        res=make_response('Signup failed')
-        return 'Signup failed'
+        username = request.form.get('username')
+        password = request.form.get('password')
+        username.replace('"',"").replace("'","").replace(";","")\
+        .replace(" ","").replace("=","").replace("(","").replace(")","")\
+        .replace("\\","").replace("/","")
+        password.replace('"',"").replace("'","").replace(";","")\
+        .replace(" ","").replace("=","").replace("(","").replace(")","")\
+        .replace("\\","").replace("/","")
+
+        # Add your signup logic here
+        # For simplicity, I'm assuming that the username is unique
+        # In a real application, you'd need to check for existing usernames, handle password hashing, etc.
+        if(users.add_user(username, password)):
+            res= {'status':True,'alert':"Signup successful, redirect to login page",'url':url_for('loginPage')}
+            response = make_response(jsonify(res),200)
+            return response
+        else:
+            res= {'status':False,'alert':"Signup failed, username already exists"}
+            return make_response(jsonify(res),200)
 
 @app.route('/lsite', methods=['POST'])
 def lsiteAPI():
@@ -197,7 +230,8 @@ def updategraphAPI():
 @app.route('/uppwd', methods=['POST'])
 def updataNewPasswordAPI():
     if(request.cookies.get('user')!=None and users.checkcookie(request.cookies.get('user'))):
-        oldpwd = request.cookies.get('password_old')
+        print(request.form)
+        oldpwd = request.form.get('password_old')
         newpwd = request.form.get('password')
         confpwd = request.form.get('password_conf')
         oldpwd.replace('"',"").replace("'","").replace(";","")\
@@ -212,42 +246,78 @@ def updataNewPasswordAPI():
         if(users.checklogin(base64.b64decode(request.cookies.get('user')).decode(),oldpwd)):
             if newpwd == confpwd:
                 if users.updatepassword(base64.b64decode(request.cookies.get('user')).decode(),newpwd):
-                    return "update success"
+                    res=dict()
+                    res['status']=True
+                    res['msg']="Update password success, please login again"
+                    res['url']=url_for('logoutAPI')
+                    return make_response(jsonify(res),200)
                 else:
-                    return "update failed(unknown error))"
+                    res = dict()
+                    res['status']=False
+                    res['msg']="Update password failed(unknown error)"
+                    return make_response(jsonify(res),200)
             else:
-                return "update failed(password not match)"
+                res = dict()
+                res['status']=False
+                res['msg']="Update password failed(password not match)"
+                return make_response(jsonify(res),200)
         else:
-            return "update failed(wrong old password)"
+            res = dict()
+            res['status']=False
+            res['msg']="Update password failed(wrong old password)"
+            return make_response(jsonify(res),200)
     else:
         #prompt out js alert window :"you are not login as our user, redirect to login page"
-        response = make_response(redirect(url_for('homePage')))
-        return response
+        res = dict()
+        res['status']=False
+        res['msg']="Update password failed(not login), redirect to home page"
+        res['url']=url_for('homePage')
+        return make_response(jsonify(res),200)
 
 @app.route('/currentdata', methods=['POST'])
 def currentdataAPI():
+    print(request.form)
     if(request.cookies.get('user')!=None and users.checkcookie(request.cookies.get('user'))):
-        curdata = database_func.getcurrentdata(request.form.get('city'),request.form.get('site'))
-        return jsonify(curdata)
+        curdata = datas.getcurrentdata(request.form.get('city'),request.form.get('site'))
+        res = dict()
+        res['data']=curdata
+        res['status'] = True
+        response = make_response(jsonify(res),200)
+        return response
     else:
         #prompt out js alert window :"you are not login as our user, redirect to login page"
-        response = make_response(redirect(url_for('homePage')))
-        return response
+        res = dict()
+        res['status']=False
+        res['msg'] = "Get current data failed(not login), redirect to home page"
+        res['url']=url_for('homePage')
+        return make_response(jsonify(res),200)
     
 @app.route('/deleteAcc', methods=['POST'])
 def deleteAccAPI():
     if(request.cookies.get('user')!=None and users.checkcookie(request.cookies.get('user'))):
-        if users.deleteAccount(base64.b64decode(request.cookies.get('user')).decode()):
-            response = make_response(redirect(url_for('homePage')))
-            response.delete_cookie('user')
-            response.delete_cookie('alert')
-            return response
+        if(not users.checklogin(base64.b64decode(request.cookies.get('user')).decode(),request.form.get('password'))):
+            res = dict()
+            res['status']=False
+            res['msg']="Delete account failed(wrong password)"
+            return make_response(jsonify(res),200)
+        if not users.deleteAccount(base64.b64decode(request.cookies.get('user')).decode()):
+            res = dict()
+            res['status']=True
+            res['msg']="Delete account success, redirect to home page"
+            res['url']=url_for('logoutAPI')
+            return make_response(jsonify(res),200)
         else:
-            return "delete failed(unknown error)"
+            res = dict()
+            res['status']=False
+            res['msg']="Delete account failed(unknown error)"
+            return make_response(jsonify(res),200)
     else:
         #prompt out js alert window :"you are not login as our user, redirect to login page"
-        response = make_response(redirect(url_for('homePage')))
-        return response
+        res=dict()
+        res['status']=False
+        res['msg']="Delete account failed(not login), redirect to home page"
+        res['url']=url_for('homePage')
+        return make_response(jsonify(res),200)
 
 if __name__ == '__main__':
     app.run(debug=True)

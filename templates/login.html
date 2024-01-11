@@ -37,35 +37,55 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        #msg {
+            color: red;
+        }
     </style>
 </head>
 <body>
-    <form action="/login" method="post" id="loginData">
+    <form id="loginData">
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" required placeholder="Your Username">
 
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required placeholder="Your Password">
-
+        <p style="color: red;font-size: small;" id="msg"></p>
         <button type="submit">Login</button>
     </form>
 </body>
 <script>
-    function submitForm() {
-            var form = document.getElementById('loginData');
-            fetch('/login', {
-                method: 'POST',
-                body: new FormData(form)
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Server response:', data);
-                alert(JSON.stringify(data));
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert(JSON.stringify(data));
-            });
+    document.getElementById('loginData').addEventListener('submit', function(e) {
+        e.preventDefault();
+        submitForm();
+    });
+    async function submitForm() {
+    var form = document.getElementById('loginData');
+    
+    try {
+        let response = await fetch('/login', {
+            method: 'POST',
+            body: new FormData(form)
+        });
+
+        if (response.ok) {
+            var data = await response.json(); // Wait for the asynchronous operation to complete
+            console.log(data);
+            if (!alert(data.alert)) { // Wait for the user to click OK
+                if (data.status == true) {
+                    window.location.href = data.url;
+                } else {
+                    document.getElementById('username').value = "";
+                    document.getElementById('password').value = "";
+                    document.getElementById('msg').innerHTML = "Wrong username or password";
+                }
+            }
+        } else {
+            alert("HTTP-Error: " + response.status);
         }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again later.');
+    }
+}
 </script>
 </html>

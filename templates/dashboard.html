@@ -34,6 +34,13 @@
     th {
         border-bottom: 1px solid #9b9b9b;
     }
+
+    #cumulateDataGraph {
+        margin-top: auto;
+        width: 60%;
+        height: 60%;
+    }
+
     </style>
 </head>
 
@@ -51,19 +58,19 @@
             <span>
                 <form id="cityAndSiteForm">
                     <span id="city">
-                       <select id="citySelect" title="city" onchange="updateSiteList()">
+                       <select id="citySelect" name="city" title="city" onchange="updateSiteList()">
                         <option selected></option>
                        </select>
                       </span>
 
                     <span id="site">
-                        <select id="siteList" title="site" required onchange="updateUI()">
+                        <select id="siteList" name="site" title="site" required onchange="updateUI()">
                             <option selected></option>
                          </select>
                     </span>
                     
                     <span id="submit">
-                    <button onclick="sendForm()">submit</button>
+                    <button>submit</button>
                     </span>
             </span>
             <span id = "allDataTable">
@@ -85,43 +92,6 @@
                             <td>小時濃度</td>
                             <td style="height: 40px;" id="PM2_5_hour_concentrate"><!--PM2.5小時濃度--></td>
                         </tr>
-                        <tr>
-                            <th rowspan="2">PM<sub>10</sub></th>
-                            <td>移動平均</td>
-                            <td style="height: 40px;" id="PM10_avgMove"><!--PM10移動平均--></td>
-                        </tr>
-                        <tr>
-                            <td>小時濃度</td>
-                            <td style="height: 40px;" id="PM10_hour_concentrate"><!--PM10小時濃度--></td>
-                        </tr>
-                        <tr>
-                            <th rowspan="2">O<sub>3</sub><br>臭氧</th>
-                            <td>八小時移動平均</td>
-                            <td style="height: 40px;" id="O3_8h_avgMove"><!--臭氧八小時移動平均--></td>
-                        </tr>
-                        <tr>
-                            <td>小時濃度</td>
-                            <td style="height: 40px;" id="O3_hour_concentrate"><!--臭氧小時濃度--></td>
-                        </tr>
-                        <tr>
-                            <th rowspan="2">CO<br>一氧化碳</th>
-                            <td>八小時移動平均</td>
-                            <td style="height: 40px;" id="CO_8h_avgMove"><!--一氧化碳八小時移動平均--></td>
-                        </tr>
-                        <tr>
-                            <td>小時濃度</td>
-                            <td style="height: 40px;" id="CO_hour_concentrate"><!--一氧化碳小時濃度--></td>
-                        </tr>
-                        <tr>
-                            <th>SO<sub>2</sub><br>二氧化硫</th>
-                            <td>小時濃度</td>
-                            <td style="height: 100px" id="SO2_hour_concentrate"><!--二氧化硫小時濃度--></td>
-                        </tr>
-                        <tr>
-                            <th>NO<sub>2</sub><br>二氧化氮</th>
-                            <td>小時濃度</td>
-                            <td style="height: 100px" id="NO2_hour_concentrate"><!--二氧化氮小時濃度--></td>
-                        </tr>
                     </table>
                 </div>
                 
@@ -129,8 +99,7 @@
 
         </div>
 
-        <img id="cumulateDataGraph">
-        </img>
+        <img id="cumulateDataGraph" src="/currentimg" style="visibility: hidden;"> </img>
 
     </div>
 
@@ -196,29 +165,54 @@
             }
         }
 
-        function sendForm(){
-            let selectedCity = citySelect.value;
-            let selectedSite = siteList.value;
-            console.log(selectedCity);
-            console.log(selectedSite);
-            fetch('/sendForm', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({city: selectedCity, site: selectedSite }),
-            })
-                .then((response) => response.json())
-                .then((response) => {
+        document.getElementById('cityAndSiteForm').addEventListener('submit', (e)=>{
+            e.preventDefault();
+            if(siteList.value == ''){
+                alert('請選擇測站');
+                return;
+            }
+            while(1){
+                //2min
+                console.log('updateing');
+                if(!setTimeout(updateData, 10)){
+                    alert('連線取得最新資料中，請稍後再試');
+                }else{
+                    break;
+                }
+            }
+        });
+        async function updateData(){
+            var form = document.getElementById('cityAndSiteForm');
+            try{
+                var response = await fetch('/currentdata', {
+                          method: 'POST',
+                          body: new FormData(form)
+                      });
 
-                    document.getElementById('submit').style.visibility = 'hidden';
-                    //img1 and img2 are image files in response
-                    document.getElementById('currentData').innerHTML = '<img src="data:image/png;base64,' + response.img1 + '">';
-                    document.getElementById('cumulateDataGraph').innerHTML = '<img src="data:image/png;base64,' + response.img2 + '">';
-                    console.log(response['data']);  //showdatas
-                    document.getElementById('currentData').innerHTML = '<option selected>'+selectedCity+'</option>';
-                    document.getElementById('cumulateDataGraph').innerHTML = '<option selected>'+selectedSite+'</option>';
-                }); // end of fetch()
+                var dict = await response.json();
+                const data = dict.data;
+                console.log(data);
+                if(dict.status == true){
+                    console.log('update success');
+                    document.getElementById('city_slash_site').innerHTML = data.County + '/' + data.SiteName;
+                    document.getElementById('AQI_display').innerHTML = data.AQI;
+                    console.log(data.AQI);
+                    console.log(data.pm2_5);
+                    console.log(data.pm2_5_avg);
+                    document.getElementById('PM2_5_avgMove').innerHTML = data.pm2_5_avg;
+                    document.getElementById('PM2_5_hour_concentrate').innerHTML = data.pm2_5;
+                    document.getElementById('cumulateDataGraph').style.visibility = 'visible';
+                    console.log('update success');
+                    return true;
+                }else{
+                    alert('連線取得最新資料中，請稍後再試');
+                    return false;
+                }
+            }catch(err){
+                console.log(err);
+                alert('連線取得最新資料中，請稍後再試');
+                return false;
+            }
         }
     </script>
 </body>

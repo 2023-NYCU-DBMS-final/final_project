@@ -50,7 +50,7 @@
     </style>
 </head>
 <body>
-    <form action="/signup" method="post">
+    <form action="/signup" method="post" id="signupform">
         <h2>Sign Up</h2>
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" required placeholder="Your Username">
@@ -60,8 +60,42 @@
 
         <label for="confirm_password">Confirm Password:</label>
         <input type="password" id="confirm_password" name="confirm_password" required placeholder="Type again your password">
-
+        <p style="color: red; font-size: small;" id="msg"></p>
         <button type="submit">Sign Up</button>
     </form>
 </body>
+    <script>
+        document.getElementById('signupform').addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitForm();
+        });
+        async function submitForm() {
+            var form = document.getElementById('signupform');
+            var password = document.getElementById('password').value;
+            var confirm_password = document.getElementById('confirm_password').value;
+            if (password != confirm_password) {
+                document.getElementById('msg').innerHTML = "Password and Confirm Password are not the same!";
+                return;
+            }
+            try {
+                let response = await fetch('/signup', {
+                    method: 'POST',
+                    body: new FormData(form)
+                });
+                let result = await response.json();
+                if(!alert(result.alert)) {
+                    if (result.status == true) {
+                        window.location.href = result.url;
+                    } else {
+                        document.getElementById('username').value = "";
+                        document.getElementById('password').value = "";
+                        document.getElementById('confirm_password').value = "";
+                        document.getElementById('msg').innerHTML = "maybe username is already exists!"
+                    }
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
+    </script>
 </html>
