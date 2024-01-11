@@ -19,8 +19,8 @@ def checktime():
         return False
 
 def getcurrentdata(city,site):
-    if(0):
-    #if(not checktime()):
+    #if(0):
+    if(not checktime()):
         result = scraper.spider()
         if result != True:
             print(result)
