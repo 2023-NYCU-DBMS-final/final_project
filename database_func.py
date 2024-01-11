@@ -73,7 +73,7 @@ def get_current_data(city, site_name):
     cursor.execute(query)
     conn.commit()
     
-    query='''INSERT INTO a SELECT SiteName, County, AQI, status, pm2_5, wind_speed, wind_direc, publishtime, pm2_5_avg FROM cumulateData WHERE substr(SiteName, 1, ''' +str(len(site_name))+''')='''+converted_site_name+''' AND substr(County, 1, ''' + str(len(city))+''')='''+converted_city
+    query='''INSERT INTO a SELECT SiteName, County, AQI, status, pm2_5, wind_speed, wind_direc, publishtime, pm2_5_avg FROM currentData WHERE substr(SiteName, 1, ''' +str(len(site_name))+''')='''+converted_site_name+''' AND substr(County, 1, ''' + str(len(city))+''')='''+converted_city
     cursor.execute(query)
     conn.commit()
 
